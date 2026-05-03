@@ -1,0 +1,10 @@
+services:
+  simulation-api:
+    build: .
+    env_file:
+      - .env.example
+    ports:
+      - "8017:8017"
+    volumes:
+      - ./scenarios:/app/scenarios:ro
+      - ./reports/generated:/app/reports/generated

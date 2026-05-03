@@ -1,0 +1,9 @@
+name: run-setup-what-if
+description: Evaluate a setup variant before sending it to Race Command Center.
+steps:
+  - id: load-scenario
+    uses: scenario-runner.load
+  - id: run-digital-twin
+    uses: what-if-analysis-service.simulate
+  - id: publish-evidence
+    uses: race-command-center-client.publish_report

@@ -1,0 +1,26 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: SetupVariant
+type: object
+properties:
+  rear_rebound_clicks:
+    type: integer
+    default: 0
+  front_rebound_clicks:
+    type: integer
+    default: 0
+  rear_pressure_delta_bar:
+    type: number
+    default: 0
+  front_pressure_delta_bar:
+    type: number
+    default: 0
+  engine_map:
+    type: string
+    default: baseline
+  aero_package:
+    type: string
+    default: baseline
+  apply_from_lap:
+    type: integer
+    minimum: 1
+    default: 1

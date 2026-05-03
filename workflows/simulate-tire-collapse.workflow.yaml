@@ -1,0 +1,9 @@
+name: simulate-tire-collapse
+description: Stress a tire thermal scenario until degradation crosses the risk threshold.
+steps:
+  - id: hydrate-telemetry
+    uses: telemetry-client.fetch_session_window
+  - id: run-thermal-model
+    uses: tire-thermal-simulator.simulate
+  - id: generate-report
+    uses: report-service.render

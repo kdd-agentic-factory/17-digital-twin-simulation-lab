@@ -1,0 +1,9 @@
+name: generate-simulation-report
+description: Convert simulation evidence into an approval-ready report.
+steps:
+  - id: collect-results
+    uses: minio-client.read_results
+  - id: render-template
+    uses: reports.render
+  - id: send-to-command-center
+    uses: race-command-center-client.publish_report

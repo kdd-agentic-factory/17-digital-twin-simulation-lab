@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scenario-runner
+  namespace: digital-twin-simulation-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scenario-runner
+  template:
+    metadata:
+      labels:
+        app: scenario-runner
+    spec:
+      containers:
+        - name: scenario-runner
+          image: digital-twin-simulation-lab:latest
+          command: ["python", "-m", "digital_twin_simulation_lab.scenario_runner"]

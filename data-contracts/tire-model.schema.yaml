@@ -1,0 +1,15 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: TireModel
+type: object
+required: [compound, carcass_temp_c, pressure_bar, degradation_index]
+properties:
+  compound:
+    enum: [soft, medium, hard, wet]
+  carcass_temp_c:
+    type: number
+  pressure_bar:
+    type: number
+  degradation_index:
+    type: number
+    minimum: 0
+    maximum: 1

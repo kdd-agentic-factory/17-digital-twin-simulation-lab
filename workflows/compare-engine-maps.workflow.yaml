@@ -1,0 +1,9 @@
+name: compare-engine-maps
+description: Compare engine map options over a configurable race window.
+steps:
+  - id: expand-map-variants
+    uses: engine-map-simulator.expand
+  - id: estimate-lap-time
+    uses: lap-time-estimator.batch
+  - id: rank-options
+    uses: what-if-analysis-service.rank

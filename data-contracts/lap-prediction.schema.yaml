@@ -1,0 +1,14 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: LapPrediction
+type: object
+required: [lap, predicted_lap_time_s, confidence]
+properties:
+  lap:
+    type: integer
+    minimum: 1
+  predicted_lap_time_s:
+    type: number
+  confidence:
+    type: number
+    minimum: 0
+    maximum: 1

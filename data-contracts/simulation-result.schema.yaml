@@ -1,0 +1,31 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: SimulationResult
+type: object
+required: [scenario_id, risk, recommendation, summary, evidence]
+properties:
+  scenario_id:
+    type: string
+  risk:
+    enum: [low, medium-low, medium, high]
+  recommendation:
+    type: string
+  summary:
+    type: object
+    required:
+      - spin_t05_delta_pct
+      - rear_carcass_temp_delta_c
+      - lap_time_delta_s
+      - degradation_delay_laps
+    properties:
+      spin_t05_delta_pct:
+        type: number
+      rear_carcass_temp_delta_c:
+        type: number
+      lap_time_delta_s:
+        type: number
+      degradation_delay_laps:
+        type: integer
+  evidence:
+    type: array
+    items:
+      type: string

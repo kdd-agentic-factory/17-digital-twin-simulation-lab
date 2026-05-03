@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simulation-lab-config
+  namespace: digital-twin-simulation-lab
+data:
+  SIMULATION_API_PORT: "8017"

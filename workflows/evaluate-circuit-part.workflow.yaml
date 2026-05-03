@@ -1,0 +1,9 @@
+name: evaluate-circuit-part
+description: Evaluate motorcycle response corner by corner for a circuit sector.
+steps:
+  - id: select-corners
+    uses: circuit.segment
+  - id: simulate-response
+    uses: scenario-runner.corner_response
+  - id: publish-findings
+    uses: race-ai-copilot-client.attach_context

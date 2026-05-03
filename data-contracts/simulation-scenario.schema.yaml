@@ -1,0 +1,36 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: SimulationScenario
+type: object
+required:
+  - scenario_id
+  - circuit
+  - session
+  - base_lap_time_s
+  - laps
+  - changes
+  - baseline
+properties:
+  scenario_id:
+    type: string
+  circuit:
+    type: string
+  session:
+    enum: [pre-gp, fp1, fp2, qualifying, race]
+  base_lap_time_s:
+    type: number
+    exclusiveMinimum: 0
+  laps:
+    type: integer
+    minimum: 1
+  changes:
+    $ref: setup-variant.schema.yaml
+  baseline:
+    type: object
+    required: [rear_carcass_temp_c, rear_pressure_bar, spin_t05_pct]
+    properties:
+      rear_carcass_temp_c:
+        type: number
+      rear_pressure_bar:
+        type: number
+      spin_t05_pct:
+        type: number

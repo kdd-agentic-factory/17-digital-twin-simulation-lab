@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulation-api
+  namespace: digital-twin-simulation-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simulation-api
+  template:
+    metadata:
+      labels:
+        app: simulation-api
+    spec:
+      containers:
+        - name: simulation-api
+          image: digital-twin-simulation-lab:latest
+          ports:
+            - containerPort: 8017
+          envFrom:
+            - configMapRef:
+                name: simulation-lab-config
