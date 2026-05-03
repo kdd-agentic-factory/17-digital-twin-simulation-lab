@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, PositiveFloat, PositiveInt
+from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, model_validator
 
 
 SessionName = Literal["pre-gp", "fp1", "fp2", "qualifying", "race"]
@@ -33,6 +33,12 @@ class SimulationScenario(BaseModel):
     laps: PositiveInt
     changes: SetupChanges
     baseline: BaselineTelemetry
+
+    @model_validator(mode="after")
+    def validate_lap_window(self) -> "SimulationScenario":
+        if self.changes.apply_from_lap > self.laps:
+            raise ValueError("changes.apply_from_lap must be less than or equal to laps")
+        return self
 
 
 class SimulationSummary(BaseModel):

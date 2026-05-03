@@ -16,9 +16,11 @@ properties:
     default: 0
   engine_map:
     type: string
+    enum: [baseline, mapping_1, mapping_2, mapping_3]
     default: baseline
   aero_package:
     type: string
+    enum: [baseline, high_downforce, low_drag, front_stability]
     default: baseline
   apply_from_lap:
     type: integer

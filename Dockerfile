@@ -7,6 +7,9 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY src ./src
+COPY scenarios ./scenarios
+COPY data-contracts ./data-contracts
+COPY reports/templates ./reports/templates
 
 RUN pip install --no-cache-dir .
 

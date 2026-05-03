@@ -17,3 +17,4 @@ spec:
         - name: scenario-runner
           image: digital-twin-simulation-lab:latest
           command: ["python", "-m", "digital_twin_simulation_lab.scenario_runner"]
+          args: ["--watch-dir", "/app/scenarios", "--interval-s", "30"]
