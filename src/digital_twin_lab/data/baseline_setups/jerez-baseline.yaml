@@ -1,0 +1,4 @@
+front_rebound: 8
+rear_rebound: 10
+rear_ride_height_mm: 45
+engine_map: mapping_1

@@ -1,0 +1,4 @@
+type: aero
+drag_gain_kph: 4.8
+stability_delta: -0.12
+rear_temp_delta_c: 1.7

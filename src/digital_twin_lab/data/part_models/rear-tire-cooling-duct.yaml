@@ -1,0 +1,4 @@
+type: cooling
+drag_gain_kph: -0.3
+stability_delta: -0.11
+rear_temp_delta_c: -6.4

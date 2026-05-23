@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/app/src
 
 WORKDIR /app
 
@@ -12,12 +12,9 @@ RUN pip install --no-cache-dir \
     "opentelemetry-api>=1.28" "opentelemetry-sdk>=1.28"
 
 COPY src ./src
-COPY scenarios ./scenarios
 COPY data-contracts ./data-contracts
-COPY reports/templates ./reports/templates
-
-ENV PYTHONPATH=/app/src
+COPY reports ./reports
 
 EXPOSE 8170
 
-CMD ["uvicorn", "digital_twin_lab.api.app:app", "--host", "0.0.0.0", "--port", "8170"]
+CMD ["uvicorn", "digital_twin_lab.main:app", "--host", "0.0.0.0", "--port", "8170"]

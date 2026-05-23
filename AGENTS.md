@@ -1,30 +1,20 @@
 # AGENTS.md
 
-## Proposito del repositorio
+## Repo intent
 
-Este repositorio implementa el laboratorio de gemelo digital y simulacion para
-validar cambios antes de aplicarlos en pista. El sistema debe producir evidencia
-accionable para el Race Command Center y el AI Copilot.
+This repo is the deterministic MVP simulation gate for setup, tire and part recommendations.
 
-## Principios de trabajo
+## Non-negotiables
 
-- Mantener las simulaciones deterministas por defecto.
-- Separar dominio, modelos, escenarios, integraciones y API.
-- Versionar contratos de entrada/salida en `data-contracts/`.
-- Documentar supuestos fisicos cuando un modelo sea heuristico.
-- No bloquear la ejecucion local por dependencias externas.
+- Keep `PYTHONPATH=src` imports working.
+- Prefer explainable heuristics over opaque ML for the MVP.
+- Do not reintroduce legacy `api/`, `simulators/`, `integrations/`, or `domain.py` production entrypoints.
+- Every new behavior needs pytest coverage first.
 
-## Calidad esperada
-
-- Toda logica nueva debe tener pruebas unitarias o de validacion.
-- Las respuestas de simulacion deben incluir riesgo, recomendacion y metricas.
-- Los clientes externos deben tener interfaces claras y fallar de forma
-  controlada cuando no haya endpoints configurados.
-
-## Comandos utiles
+## Useful commands
 
 ```powershell
-python -m pip install -e ".[dev]"
-python -m pytest
-uvicorn digital_twin_simulation_lab.api.app:app --reload --port 8017
+python -m pip install -e .
+python -m pytest tests/integration/test_api.py tests/unit/test_what_if.py tests/validation/test_contract_examples.py
+uvicorn digital_twin_lab.main:app --reload --port 8017
 ```
