@@ -13,6 +13,6 @@ COPY reports/templates ./reports/templates
 
 RUN pip install --no-cache-dir .
 
-EXPOSE 8017
+EXPOSE 8170
 
-CMD ["uvicorn", "digital_twin_simulation_lab.api.app:app", "--host", "0.0.0.0", "--port", "8017"]
+CMD ["uvicorn", "digital_twin_lab.api.app:app", "--host", "0.0.0.0", "--port", "8170"]
