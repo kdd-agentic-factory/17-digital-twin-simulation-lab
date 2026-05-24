@@ -52,6 +52,15 @@ class SimulationService:
             },
         )
         self._remember_result(result)
+        # Fire-and-forget async persistence (non-blocking if event loop running)
+        try:
+            import asyncio
+            from digital_twin_lab.database import save_simulation_result
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.ensure_future(save_simulation_result(result.scenario_id, result.model_dump(mode="json")))
+        except Exception:
+            pass
         return result
 
     def list_simulations(self) -> list[dict[str, object]]:
