@@ -30,6 +30,7 @@ def _configure_otel(app: FastAPI, service_name: str = "digital-twin-simulation-l
 
 from digital_twin_lab import __version__
 from digital_twin_lab.config import settings
+from digital_twin_lab.rate_limit import RateLimitMiddleware
 from digital_twin_lab.database import init_db
 from digital_twin_lab.routers import all_routers
 from digital_twin_lab.telemetry import TelemetryMiddleware, configure_logging
@@ -60,6 +61,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.add_middleware(TelemetryMiddleware)
+    app.add_middleware(RateLimitMiddleware, calls_per_minute=int(os.getenv("RATE_LIMIT_PER_MINUTE", "60")))
 
     @app.exception_handler(ResourceNotFoundError)
     async def handle_not_found(_, exc: ResourceNotFoundError) -> JSONResponse:
