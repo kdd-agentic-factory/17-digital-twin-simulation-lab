@@ -35,14 +35,17 @@ async def run_what_if(request: WhatIfRequest) -> dict[str, object]:
         laps=request.laps,
     )
     result_dict = result if isinstance(result, dict) else (result.model_dump(mode="json") if hasattr(result, "model_dump") else result)
-    await save_what_if_result(
-        scenario_id=request.scenario_id,
-        circuit_id=request.circuit_id,
-        session_id=request.session_id,
-        baseline_setup=request.baseline_setup_id,
-        proposed_setup=request.proposed_setup,
-        result=result_dict,
-    )
+    try:
+        await save_what_if_result(
+            scenario_id=request.scenario_id,
+            circuit_id=request.circuit_id,
+            session_id=request.session_id,
+            baseline_setup=request.baseline_setup_id,
+            proposed_setup=request.proposed_setup,
+            result=result_dict,
+        )
+    except Exception:
+        pass
     return result_dict
 
 

@@ -54,6 +54,15 @@ CREATE TABLE IF NOT EXISTS what_if_results (
     created_at      TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_whatif_scenario ON what_if_results (scenario_id);
+
+CREATE TABLE IF NOT EXISTS race_strategy_results (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    strategy_id  TEXT NOT NULL,
+    circuit_id   TEXT NOT NULL,
+    result_json  TEXT NOT NULL,
+    created_at   TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_strategy_circuit ON race_strategy_results (circuit_id);
 """
 
 _DDL_PG = """
@@ -76,6 +85,15 @@ CREATE TABLE IF NOT EXISTS what_if_results (
     created_at      TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_whatif_scenario ON what_if_results (scenario_id);
+
+CREATE TABLE IF NOT EXISTS race_strategy_results (
+    id           BIGSERIAL PRIMARY KEY,
+    strategy_id  TEXT NOT NULL,
+    circuit_id   TEXT NOT NULL,
+    result_json  JSONB NOT NULL,
+    created_at   TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_strategy_circuit ON race_strategy_results (circuit_id);
 """
 
 
@@ -154,6 +172,36 @@ async def save_what_if_result(
             },
         )
         await db.commit()
+
+
+async def save_race_strategy(strategy_id: str, circuit_id: str, result: dict) -> None:
+    from datetime import datetime, timezone
+    ts = datetime.now(timezone.utc).isoformat()
+    async with AsyncSessionLocal() as db:
+        await db.execute(
+            text("""
+                INSERT INTO race_strategy_results (strategy_id, circuit_id, result_json, created_at)
+                VALUES (:strategy_id, :circuit_id, :result_json, :created_at)
+            """),
+            {"strategy_id": strategy_id, "circuit_id": circuit_id, "result_json": json.dumps(result), "created_at": ts},
+        )
+        await db.commit()
+
+
+async def load_race_strategies(circuit_id: str | None = None, limit: int = 20) -> list[dict]:
+    async with AsyncSessionLocal() as db:
+        if circuit_id:
+            result = await db.execute(
+                text("SELECT result_json FROM race_strategy_results WHERE circuit_id = :cid ORDER BY created_at DESC LIMIT :limit"),
+                {"cid": circuit_id, "limit": limit},
+            )
+        else:
+            result = await db.execute(
+                text("SELECT result_json FROM race_strategy_results ORDER BY created_at DESC LIMIT :limit"),
+                {"limit": limit},
+            )
+        rows = result.fetchall()
+    return [json.loads(r.result_json) for r in rows]
 
 
 async def load_what_if_results(scenario_id: str | None = None, limit: int = 20) -> list[dict]:

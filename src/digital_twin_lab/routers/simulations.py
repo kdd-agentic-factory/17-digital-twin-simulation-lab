@@ -11,8 +11,12 @@ _service = SimulationService()
 
 @router.get("")
 async def list_simulations() -> dict[str, object]:
-    """Return recent simulation results from the database."""
-    results = await load_recent_simulations(limit=50)
+    """Return recent simulation results from the database (falls back to in-memory)."""
+    try:
+        results = await load_recent_simulations(limit=50)
+    except Exception:
+        results = []
+
     if not results:
         # Seed with a default simulation on first access
         from digital_twin_lab.models.simulation import SimulationRequest
@@ -20,6 +24,9 @@ async def list_simulations() -> dict[str, object]:
         scenario = ScenarioService().get_scenario("jerez-map2-rebound")
         result = _service.run(SimulationRequest(scenario_id=scenario.scenario_id), scenario)
         result_dict = result.model_dump(mode="json")
-        await save_simulation_result(scenario_id=result.scenario_id, result=result_dict)
+        try:
+            await save_simulation_result(scenario_id=result.scenario_id, result=result_dict)
+        except Exception:
+            pass
         results = [result_dict]
     return {"items": results, "total": len(results)}

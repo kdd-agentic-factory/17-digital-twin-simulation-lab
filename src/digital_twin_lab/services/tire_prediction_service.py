@@ -78,28 +78,38 @@ class TirePredictionService:
         stint_laps: int,
         aggression_index: float,
     ) -> dict[str, object]:
-        tire_model = self._catalog.load("tire_models", f"{compound}.yaml")
+        from digital_twin_lab.tire.pacejka_model import PacejkaTireModel
+
         circuit_profile = self._catalog.load("circuit_profiles", f"{circuit_id}.yaml")
-        degradation_index = round(
-            current_wear_pct / 100 * 0.46
-            + current_carcass_temp_c / 140 * 0.22
-            + aggression_index * 0.18
-            + float(tire_model["thermal_sensitivity"]) * 0.08
-            + float(circuit_profile["thermal_load"]) * 0.16,
-            3,
+
+        # Use Pacejka physics-based prediction when compound is known
+        pacejka_compound = compound if compound in ("soft", "medium", "hard") else "medium"
+        pacejka = PacejkaTireModel(pacejka_compound)  # type: ignore[arg-type]
+        stability_score = max(0.3, 1.0 - aggression_index)
+        pacejka_result = pacejka.predict_collapse(
+            current_wear_pct=current_wear_pct,
+            current_temp_c=current_carcass_temp_c,
+            remaining_laps=stint_laps,
+            circuit_profile=circuit_profile,
+            ambient_temp_c=float(circuit_profile.get("ambient_temp_c", 30.0)),
+            setup_stability_score=stability_score,
         )
-        collapse_prediction = self._collapse_predictor.predict(degradation_index=degradation_index, stint_laps=stint_laps)
-        risk = self._classifier.classify(
-            delta_metrics={
-                "lap_time_delta_s": max(0.0, degradation_index - 0.68),
-                "stability_score_delta": -max(0.0, degradation_index - 0.72) * 0.2,
-                "rear_temp_delta_c": max(0.0, current_carcass_temp_c - float(tire_model["optimal_carcass_temp_c"])),
-            },
-            context={"component": "tire"},
+
+        # Legacy collapse_predictor for API response shape compatibility
+        degradation_index = pacejka_result["degradation_index"]
+        collapse_prediction = self._collapse_predictor.predict(
+            degradation_index=degradation_index, stint_laps=stint_laps
         )
         return {
             "tire_id": tire_id,
             "degradation_index": degradation_index,
-            "risk_level": risk.level,
+            "risk_level": pacejka_result["risk_level"],
             "collapse_prediction": collapse_prediction,
+            "pacejka": {
+                "collapse_predicted": pacejka_result["collapse_predicted"],
+                "collapse_lap": pacejka_result["collapse_lap"],
+                "remaining_laps_safe": pacejka_result["remaining_laps_safe"],
+                "final_wear_pct": pacejka_result["final_wear_pct"],
+                "final_temp_c": pacejka_result["final_temp_c"],
+            },
         }
