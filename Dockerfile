@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir \
     "structlog>=24" "prometheus-client>=0.21" \
     "opentelemetry-api>=1.28" "opentelemetry-sdk>=1.28" \
     "opentelemetry-instrumentation-fastapi>=0.49b0" \
-    "sqlalchemy>=2.0" "aiosqlite>=0.19" "asyncpg>=0.29"
+    "sqlalchemy[asyncio]>=2.0" "aiosqlite>=0.19" "asyncpg>=0.29"
 
 COPY src ./src
 COPY data-contracts ./data-contracts
