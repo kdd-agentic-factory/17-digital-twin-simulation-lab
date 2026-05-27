@@ -18,7 +18,7 @@ def test_health_endpoint_returns_service_status():
 
 def test_what_if_endpoint_returns_explainable_baseline_comparison():
     response = client.post(
-        "/what-if",
+        "/api/v1/what-if",
         json={
             "scenario_id": "jerez-map2-rebound",
             "circuit_id": "jerez",
@@ -50,7 +50,7 @@ def test_what_if_endpoint_returns_explainable_baseline_comparison():
 
 def test_parts_simulate_endpoint_returns_part_impact_and_risk():
     response = client.post(
-        "/parts/simulate",
+        "/api/v1/parts/simulate",
         json={
             "scenario_id": "mugello-side-deflector",
             "circuit_id": "mugello",
@@ -72,7 +72,7 @@ def test_parts_simulate_endpoint_returns_part_impact_and_risk():
 
 def test_tires_predict_collapse_endpoint_returns_collapse_projection():
     response = client.post(
-        "/tires/predict-collapse",
+        "/api/v1/tires/predict-collapse",
         json={
             "tire_id": "rear-soft-stint-01",
             "compound": "soft",
@@ -97,7 +97,7 @@ def test_tires_predict_collapse_endpoint_returns_collapse_projection():
 
 def test_recommendations_validate_endpoint_blocks_unsafe_changes():
     response = client.post(
-        "/recommendations/validate",
+        "/api/v1/recommendations/validate",
         json={
             "recommendation_id": "rec-unsafe-1",
             "scenario_id": "assen-cooling-duct",
@@ -133,7 +133,7 @@ def test_recommendations_validate_endpoint_blocks_unsafe_changes():
 
 def test_what_if_endpoint_rejects_invalid_payload_with_422():
     response = client.post(
-        "/what-if",
+        "/api/v1/what-if",
         json={
             "scenario_id": "invalid-laps",
             "circuit_id": "jerez",
@@ -151,14 +151,14 @@ def test_what_if_endpoint_rejects_invalid_payload_with_422():
 
 
 def test_scenarios_endpoint_returns_catalog_backed_entries_and_detail():
-    list_response = client.get("/scenarios")
+    list_response = client.get("/api/v1/scenarios")
 
     assert list_response.status_code == 200
     list_payload = list_response.json()
     assert list_payload["items"]
     assert any(item["scenario_id"] == "jerez-map2-rebound" for item in list_payload["items"])
 
-    detail_response = client.get("/scenarios/jerez-map2-rebound")
+    detail_response = client.get("/api/v1/scenarios/jerez-map2-rebound")
 
     assert detail_response.status_code == 200
     detail_payload = detail_response.json()
@@ -167,14 +167,14 @@ def test_scenarios_endpoint_returns_catalog_backed_entries_and_detail():
 
 
 def test_scenarios_endpoint_returns_404_for_unknown_catalog_id():
-    response = client.get("/scenarios/unknown-scenario")
+    response = client.get("/api/v1/scenarios/unknown-scenario")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Scenario not found: unknown-scenario"
 
 
 def test_simulations_and_latest_report_endpoints_return_mvp_payloads():
-    simulations_response = client.get("/simulations")
+    simulations_response = client.get("/api/v1/simulations")
 
     assert simulations_response.status_code == 200
     simulations_payload = simulations_response.json()
@@ -182,7 +182,7 @@ def test_simulations_and_latest_report_endpoints_return_mvp_payloads():
     assert simulations_payload["items"][0]["scenario_id"]
     assert simulations_payload["items"][0]["risk_classification"]["level"]
 
-    report_response = client.get("/reports/latest")
+    report_response = client.get("/api/v1/reports/latest")
 
     assert report_response.status_code == 200
     report_payload = report_response.json()
@@ -192,14 +192,14 @@ def test_simulations_and_latest_report_endpoints_return_mvp_payloads():
 
 
 def test_parts_catalog_endpoint_returns_404_for_unknown_part_id():
-    response = client.get("/parts/catalog/unknown-part")
+    response = client.get("/api/v1/parts/catalog/unknown-part")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Part not found: unknown-part"
 
 
 def test_scenarios_endpoint_returns_expanded_five_circuit_catalog():
-    response = client.get("/scenarios")
+    response = client.get("/api/v1/scenarios")
 
     assert response.status_code == 200
     payload = response.json()
@@ -213,7 +213,7 @@ def test_scenarios_endpoint_returns_expanded_five_circuit_catalog():
 
 def test_race_strategy_endpoint_returns_optimal_one_stop_with_lap_data():
     response = client.post(
-        "/simulations/race-strategy",
+        "/api/v1/simulations/race-strategy",
         json={
             "circuit_id": "jerez",
             "race_laps": 20,
@@ -249,7 +249,7 @@ def test_race_strategy_endpoint_returns_optimal_one_stop_with_lap_data():
 
 def test_race_strategy_endpoint_no_stop_single_compound():
     response = client.post(
-        "/simulations/race-strategy",
+        "/api/v1/simulations/race-strategy",
         json={
             "circuit_id": "qatar",
             "race_laps": 10,
@@ -271,7 +271,7 @@ def test_race_strategy_endpoint_no_stop_single_compound():
 
 def test_race_strategy_rejects_invalid_compound():
     response = client.post(
-        "/simulations/race-strategy",
+        "/api/v1/simulations/race-strategy",
         json={
             "circuit_id": "jerez",
             "race_laps": 20,
@@ -285,7 +285,7 @@ def test_race_strategy_rejects_invalid_compound():
 def test_what_if_endpoint_new_circuits_accepted():
     for circuit_id in ("catalunya", "qatar", "phillip_island"):
         response = client.post(
-            "/what-if",
+            "/api/v1/what-if",
             json={
                 "scenario_id": f"{circuit_id}-test",
                 "circuit_id": circuit_id,
@@ -309,7 +309,7 @@ def test_what_if_endpoint_new_circuits_accepted():
 
 def test_tires_predict_collapse_returns_pacejka_section():
     response = client.post(
-        "/tires/predict-collapse",
+        "/api/v1/tires/predict-collapse",
         json={
             "tire_id": "rear-medium-01",
             "compound": "medium",

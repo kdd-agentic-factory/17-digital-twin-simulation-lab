@@ -34,8 +34,11 @@ from digital_twin_lab.config import settings
 from digital_twin_lab.rate_limit import RateLimitMiddleware
 from digital_twin_lab.database import init_db
 from digital_twin_lab.routers import all_routers
+from digital_twin_lab.routers.health import router as _health_router
 from digital_twin_lab.telemetry import TelemetryMiddleware, configure_logging
 from digital_twin_lab.utils.errors import ResourceNotFoundError, ValidationError
+
+_API_V1 = "/api/v1"
 
 _REQUEST_COUNT = Counter(
     "digital_twin_http_requests_total", "Total HTTP requests", ["method", "path", "status_code"]
@@ -93,7 +96,10 @@ def create_app() -> FastAPI:
         return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     for router in all_routers:
-        app.include_router(router)
+        if router is _health_router:
+            app.include_router(router)          # /health — no version prefix
+        else:
+            app.include_router(router, prefix=_API_V1)  # /api/v1/<router-prefix>
     _configure_otel(app)
     return app
 
