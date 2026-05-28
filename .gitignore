@@ -12,3 +12,6 @@ build/
 .env
 reports/generated/*
 !reports/generated/.gitkeep
+
+# InsForge deploy temp env file
+.env.insforge-compute
