@@ -7,4 +7,5 @@ router = APIRouter(prefix="/setup", tags=["setup"])
 
 @router.get("/baselines")
 def list_baselines() -> dict[str, object]:
-    return {"items": ["jerez-baseline", "mugello-baseline"]}
+    items = ["jerez-baseline", "mugello-baseline"]
+    return {"items": items, "total": len(items)}

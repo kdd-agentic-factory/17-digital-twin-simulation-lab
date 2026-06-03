@@ -10,7 +10,8 @@ service = ScenarioService()
 
 @router.get("")
 def list_scenarios() -> dict[str, object]:
-    return {"items": service.list_scenarios(), "message": "Catalog-backed MVP scenarios."}
+    items = service.list_scenarios()
+    return {"items": items, "total": len(items), "message": "Catalog-backed MVP scenarios."}
 
 
 @router.get("/{scenario_id}")
