@@ -35,15 +35,15 @@ engine = create_async_engine(
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 _DDL = """
-CREATE TABLE IF NOT EXISTS simulation_results (
+CREATE TABLE IF NOT EXISTS dt_simulation_results (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     scenario_id  TEXT NOT NULL,
     result_json  TEXT NOT NULL,
     created_at   TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_sim_scenario ON simulation_results (scenario_id);
+CREATE INDEX IF NOT EXISTS idx_dt_sim_scenario ON dt_simulation_results (scenario_id);
 
-CREATE TABLE IF NOT EXISTS what_if_results (
+CREATE TABLE IF NOT EXISTS dt_what_if_results (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     scenario_id     TEXT NOT NULL,
     circuit_id      TEXT NOT NULL,
@@ -53,28 +53,28 @@ CREATE TABLE IF NOT EXISTS what_if_results (
     result_json     TEXT NOT NULL,
     created_at      TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_whatif_scenario ON what_if_results (scenario_id);
+CREATE INDEX IF NOT EXISTS idx_dt_whatif_scenario ON dt_what_if_results (scenario_id);
 
-CREATE TABLE IF NOT EXISTS race_strategy_results (
+CREATE TABLE IF NOT EXISTS dt_race_strategy_results (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     strategy_id  TEXT NOT NULL,
     circuit_id   TEXT NOT NULL,
     result_json  TEXT NOT NULL,
     created_at   TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_strategy_circuit ON race_strategy_results (circuit_id);
+CREATE INDEX IF NOT EXISTS idx_dt_strategy_circuit ON dt_race_strategy_results (circuit_id);
 """
 
 _DDL_PG = """
-CREATE TABLE IF NOT EXISTS simulation_results (
+CREATE TABLE IF NOT EXISTS dt_simulation_results (
     id           BIGSERIAL PRIMARY KEY,
     scenario_id  TEXT NOT NULL,
     result_json  JSONB NOT NULL,
     created_at   TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_sim_scenario ON simulation_results (scenario_id);
+CREATE INDEX IF NOT EXISTS idx_dt_sim_scenario ON dt_simulation_results (scenario_id);
 
-CREATE TABLE IF NOT EXISTS what_if_results (
+CREATE TABLE IF NOT EXISTS dt_what_if_results (
     id              BIGSERIAL PRIMARY KEY,
     scenario_id     TEXT NOT NULL,
     circuit_id      TEXT NOT NULL,
@@ -84,16 +84,16 @@ CREATE TABLE IF NOT EXISTS what_if_results (
     result_json     JSONB NOT NULL,
     created_at      TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_whatif_scenario ON what_if_results (scenario_id);
+CREATE INDEX IF NOT EXISTS idx_dt_whatif_scenario ON dt_what_if_results (scenario_id);
 
-CREATE TABLE IF NOT EXISTS race_strategy_results (
+CREATE TABLE IF NOT EXISTS dt_race_strategy_results (
     id           BIGSERIAL PRIMARY KEY,
     strategy_id  TEXT NOT NULL,
     circuit_id   TEXT NOT NULL,
     result_json  JSONB NOT NULL,
     created_at   TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_strategy_circuit ON race_strategy_results (circuit_id);
+CREATE INDEX IF NOT EXISTS idx_dt_strategy_circuit ON dt_race_strategy_results (circuit_id);
 """
 
 
@@ -113,7 +113,7 @@ async def save_simulation_result(scenario_id: str, result: dict) -> None:
     async with AsyncSessionLocal() as db:
         await db.execute(
             text("""
-                INSERT INTO simulation_results (scenario_id, result_json, created_at)
+                INSERT INTO dt_simulation_results (scenario_id, result_json, created_at)
                 VALUES (:scenario_id, :result_json, :created_at)
             """),
             {"scenario_id": scenario_id, "result_json": json.dumps(result), "created_at": ts},
@@ -126,12 +126,12 @@ async def load_recent_simulations(limit: int = 50) -> list[dict]:
         result = await db.execute(
             text("""
                 SELECT DISTINCT ON (scenario_id) scenario_id, result_json, created_at
-                FROM simulation_results
+                FROM dt_simulation_results
                 ORDER BY scenario_id, created_at DESC
                 LIMIT :limit
             """) if not _is_sqlite else text("""
                 SELECT scenario_id, result_json, created_at
-                FROM simulation_results
+                FROM dt_simulation_results
                 GROUP BY scenario_id
                 HAVING created_at = MAX(created_at)
                 ORDER BY created_at DESC
@@ -156,7 +156,7 @@ async def save_what_if_result(
     async with AsyncSessionLocal() as db:
         await db.execute(
             text("""
-                INSERT INTO what_if_results
+                INSERT INTO dt_what_if_results
                     (scenario_id, circuit_id, session_id, baseline_setup, proposed_setup, result_json, created_at)
                 VALUES
                     (:scenario_id, :circuit_id, :session_id, :baseline_setup, :proposed_setup, :result_json, :created_at)
@@ -180,7 +180,7 @@ async def save_race_strategy(strategy_id: str, circuit_id: str, result: dict) ->
     async with AsyncSessionLocal() as db:
         await db.execute(
             text("""
-                INSERT INTO race_strategy_results (strategy_id, circuit_id, result_json, created_at)
+                INSERT INTO dt_race_strategy_results (strategy_id, circuit_id, result_json, created_at)
                 VALUES (:strategy_id, :circuit_id, :result_json, :created_at)
             """),
             {"strategy_id": strategy_id, "circuit_id": circuit_id, "result_json": json.dumps(result), "created_at": ts},
@@ -192,28 +192,28 @@ async def load_race_strategies(circuit_id: str | None = None, limit: int = 20) -
     async with AsyncSessionLocal() as db:
         if circuit_id:
             result = await db.execute(
-                text("SELECT result_json FROM race_strategy_results WHERE circuit_id = :cid ORDER BY created_at DESC LIMIT :limit"),
+                text("SELECT result_json FROM dt_race_strategy_results WHERE circuit_id = :cid ORDER BY created_at DESC LIMIT :limit"),
                 {"cid": circuit_id, "limit": limit},
             )
         else:
             result = await db.execute(
-                text("SELECT result_json FROM race_strategy_results ORDER BY created_at DESC LIMIT :limit"),
+                text("SELECT result_json FROM dt_race_strategy_results ORDER BY created_at DESC LIMIT :limit"),
                 {"limit": limit},
             )
         rows = result.fetchall()
     return [json.loads(r.result_json) for r in rows]
 
 
-async def load_what_if_results(scenario_id: str | None = None, limit: int = 20) -> list[dict]:
+async def load_dt_what_if_results(scenario_id: str | None = None, limit: int = 20) -> list[dict]:
     async with AsyncSessionLocal() as db:
         if scenario_id:
             result = await db.execute(
-                text("SELECT result_json FROM what_if_results WHERE scenario_id = :sid ORDER BY created_at DESC LIMIT :limit"),
+                text("SELECT result_json FROM dt_what_if_results WHERE scenario_id = :sid ORDER BY created_at DESC LIMIT :limit"),
                 {"sid": scenario_id, "limit": limit},
             )
         else:
             result = await db.execute(
-                text("SELECT result_json FROM what_if_results ORDER BY created_at DESC LIMIT :limit"),
+                text("SELECT result_json FROM dt_what_if_results ORDER BY created_at DESC LIMIT :limit"),
                 {"limit": limit},
             )
         rows = result.fetchall()
