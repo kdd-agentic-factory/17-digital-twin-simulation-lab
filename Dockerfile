@@ -13,6 +13,10 @@ RUN pip install --no-cache-dir \
     "opentelemetry-instrumentation-fastapi>=0.49b0" \
     "sqlalchemy[asyncio]>=2.0" "aiosqlite>=0.19" "asyncpg>=0.29"
 
+# CPU build of PyTorch for the PINN Magic-Formula estimator (§14.2). Separate
+# layer + CPU wheel index keeps the image lean and the rest of the deps on PyPI.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
 COPY src ./src
 COPY data-contracts ./data-contracts
 COPY reports ./reports
