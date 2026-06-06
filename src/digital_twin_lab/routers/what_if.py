@@ -3,7 +3,10 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from digital_twin_lab.database import load_what_if_results, save_what_if_result
+from digital_twin_lab.database import (
+    load_dt_what_if_results as load_what_if_results,
+    save_what_if_result,
+)
 from digital_twin_lab.services.what_if_service import WhatIfService
 
 router = APIRouter(tags=["what-if"])
