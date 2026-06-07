@@ -7,6 +7,7 @@ from digital_twin_lab.database import (
     load_dt_what_if_results as load_what_if_results,
     save_what_if_result,
 )
+from digital_twin_lab.services import scenario_matrix
 from digital_twin_lab.services.what_if_service import WhatIfService
 
 router = APIRouter(tags=["what-if"])
@@ -57,3 +58,18 @@ async def list_what_if_results(scenario_id: str | None = None) -> dict[str, obje
     """Return persisted what-if results, optionally filtered by scenario."""
     results = await load_what_if_results(scenario_id=scenario_id)
     return {"items": results, "total": len(results)}
+
+
+class ScenarioMatrixRequest(BaseModel):
+    compounds: list[str] = Field(default_factory=lambda: ["soft", "medium", "hard"])
+    pressures_bar: list[float] = Field(default_factory=lambda: [1.8, 1.9, 1.95, 2.0, 2.1])
+    aggressions: list[str] = Field(default_factory=lambda: ["low", "medium", "high"])
+    stint_laps: int = Field(20, ge=1)
+
+
+@router.post("/scenario-matrix")
+async def run_scenario_matrix(request: ScenarioMatrixRequest) -> dict[str, object]:
+    """Digital Twin Report: sweep compound × pressure × aggression → ranked outcomes."""
+    return scenario_matrix.run_scenario_matrix(
+        request.compounds, request.pressures_bar, request.aggressions, request.stint_laps,
+    )
