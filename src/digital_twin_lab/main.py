@@ -83,6 +83,30 @@ def create_app() -> FastAPI:
     async def handle_validation_error(_, exc: ValidationError) -> JSONResponse:
         return JSONResponse(status_code=400, content={"detail": str(exc)})
 
+    @app.exception_handler(422)
+    async def validation_exception_handler(request: Request, exc):
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error": "validation_error",
+                "detail": str(exc.errors()) if hasattr(exc, "errors") else str(exc),
+            },
+        )
+
+    @app.exception_handler(404)
+    async def not_found_handler(request: Request, exc):
+        return JSONResponse(
+            status_code=404,
+            content={"error": "not_found", "detail": "The requested resource was not found."},
+        )
+
+    @app.exception_handler(Exception)
+    async def generic_exception_handler(request: Request, exc):
+        return JSONResponse(
+            status_code=500,
+            content={"error": "internal_error", "detail": "An internal error occurred."},
+        )
+
     @app.middleware("http")
     async def _metrics_middleware(request: Request, call_next):
         path = request.url.path
