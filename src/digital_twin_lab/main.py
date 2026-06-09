@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
@@ -33,6 +33,7 @@ from digital_twin_lab import __version__
 from digital_twin_lab.config import settings
 from digital_twin_lab.rate_limit import RateLimitMiddleware
 from digital_twin_lab.database import init_db
+from digital_twin_lab.auth_deps import get_current_principal
 from digital_twin_lab.routers import all_routers
 from digital_twin_lab.routers.health import router as _health_router
 from digital_twin_lab.telemetry import TelemetryMiddleware, configure_logging
@@ -91,6 +92,8 @@ def create_app() -> FastAPI:
         _REQUEST_COUNT.labels(method=method, path=path, status_code=response.status_code).inc()
         return response
 
+    _auth = [Depends(get_current_principal)]
+
     @app.get("/metrics", include_in_schema=False)
     async def _metrics():
         return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
@@ -99,7 +102,7 @@ def create_app() -> FastAPI:
         if router is _health_router:
             app.include_router(router)          # /health — no version prefix
         else:
-            app.include_router(router, prefix=_API_V1)  # /api/v1/<router-prefix>
+            app.include_router(router, prefix=_API_V1, dependencies=_auth)  # /api/v1/<router-prefix>
     _configure_otel(app)
     return app
 
