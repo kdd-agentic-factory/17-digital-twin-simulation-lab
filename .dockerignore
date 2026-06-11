@@ -17,3 +17,32 @@ build
 *.egg-info
 *.db
 fly.toml
+
+# Directories NOT copied by Dockerfile — exclude from build context
+.atl/
+.engram/
+.github/
+apps/
+.coverage
+domain/
+integrations/
+k8s/
+models/
+pytest-cache-files-*/
+scenarios/
+services/
+workflows/
+
+# Root files NOT needed for build
+*.log
+AGENTS.md
+apply-progress.md
+docker-compose.simulation.yml
+pyproject.toml
+README.md
+SPECIFICATION.md
+strict-tdd.md
+tasks.md
+.env.example
+.env.insforge-compute
+.env.production.example
