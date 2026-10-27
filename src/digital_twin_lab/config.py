@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     app_name: str = "digital-twin-lab"
     app_env: str = "development"
-    app_host: str = "0.0.0.0"
+    app_host: str = "127.0.0.1"
     app_port: int = 8017
     app_version: str = "0.1.0"
     log_level: str = "INFO"

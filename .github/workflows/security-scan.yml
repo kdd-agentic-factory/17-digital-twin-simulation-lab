@@ -12,7 +12,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install pip-audit
+      - name: Install scanner with patched packaging tools
+        run: python -m pip install --upgrade pip "setuptools>=84.1.0" pip-audit
       - run: pip-audit
 
   bandit:
