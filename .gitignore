@@ -15,3 +15,8 @@ reports/generated/*
 
 # InsForge deploy temp env file
 .env.insforge-compute
+
+# Local evidence and operational state are never release source.
+.superpowers/
+data/
+.insforge/
