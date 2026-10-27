@@ -38,8 +38,6 @@ workflows/
 AGENTS.md
 apply-progress.md
 docker-compose.simulation.yml
-pyproject.toml
-README.md
 SPECIFICATION.md
 strict-tdd.md
 tasks.md
